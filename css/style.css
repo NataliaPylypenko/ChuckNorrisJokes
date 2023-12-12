@@ -1,0 +1,259 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+h2 {
+    margin: 0;
+}
+
+:root {
+    /* Main color */
+    --danger: #C71254;
+    --warning: #F0C20C;
+    --success: #6ECC39;
+    --primary: #0D47A1;
+
+    /* Accent color */
+    --accentDark: #7291FF;
+    --accentLight: #8EA7FF;
+    --like: #FF6767;
+
+    /* Neutral Color */
+    --black: #000;
+    --darkGray: #333333;
+    --gray: #ABABAB;
+    --lightGray: #F8F8F8;
+    --white: #FFF;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight: 400;
+    color: var(--darkGray);
+    min-height: 100vh;
+}
+
+#root, .row {
+    min-height: inherit;
+}
+
+/* Column container */
+.row {
+    display: grid;
+    grid-template-columns: 1fr 480px;
+}
+
+/* Main Start */
+.main {
+    padding: 40px;
+}
+
+.container {
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto 0;
+}
+
+.main__title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 78px;
+}
+
+.main__action {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 40px;
+}
+.main__action .greeting {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+/* Main End */
+
+/* Sidebar Start */
+
+.side {
+    background-color: var(--lightGray);
+    padding: 40px;
+}
+.side__title {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--gray);
+    margin-bottom: 20px;
+}
+
+/* Sidebar End */
+
+/* Card Start */
+
+.card {
+    display: flex;
+    gap: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-top: 27px;
+}
+
+.card__body {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.favorite-btn {
+    align-self: flex-end;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+.favorite-btn svg path:first-child {
+    fill: transparent;
+}
+.favorite-btn.isFavorite svg path:first-child {
+    fill: #FF6767;
+}
+
+.joke-id {
+    font-size: 10px;
+    color: var(--gray);
+    margin-bottom: 5px;
+}
+.joke-id a {
+    color: var(--accentLight);
+    padding: 0 5px;
+}
+
+.joke {
+    margin-bottom: 20px;
+}
+
+.joke-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.time-updated {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--gray);
+}
+.joke-category {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 20px;
+    background-color: var(--white);
+    border-radius: 6px;
+}
+
+.card-sm {
+    padding: 20px;
+    background-color: var(--white);
+    box-shadow: 0px 25px 20px -20px rgba(0,0,0,0.1);
+}
+.card-sm .card__icon {
+    background-color: var(--lightGray);
+}
+
+.card-lg {
+    padding: 40px;
+    background-color: var(--lightGray);
+}
+.card-lg .card__icon {
+    background-color: var(--white);
+}
+.card-lg .joke {
+    font-size: 18px;
+}
+
+/* Card End */
+
+/* Form Start */
+
+.form {
+    margin-bottom: 40px;
+}
+
+.collapsible {
+    font-size: 18px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+.content {
+    padding: 10px 0;
+}
+
+.category-labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.category-label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray);
+    border: 2px solid var(--lightGray);
+    border-radius: 6px;
+    padding: 6px 15px;
+    cursor: pointer;
+}
+.category-label.active {
+    color: var(--darkGray);
+    background-color: var(--lightGray);
+}
+
+.search-input {
+    border: 2px solid var(--darkGray);
+    border-radius: 10px;
+    width: 100%;
+    padding: 10px 15px;
+}
+
+/* Form End */
+
+/* Button Start */
+
+.btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 10px 40px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+.btn-submit {
+    background: linear-gradient(135deg, var(--accentLight), var(--accentDark));
+    border: 1px solid var(--accentLight);
+    color: var(--white);
+    transition: all 0.3s ease;
+}
+.btn-submit:hover{
+    background: transparent;
+    border: 1px solid var(--accentLight);
+    color: var(--accentLight);
+    transition: all 0.3s ease;
+}
+
+/* Button End */
