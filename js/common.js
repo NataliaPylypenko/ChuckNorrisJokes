@@ -1,10 +1,11 @@
 const refs = {
     apiUrl: 'https://api.chucknorris.io/',
+    selectedCategory: '',
+    cards: document.querySelector('.cards'),
     collapsibles: document.querySelectorAll('.collapsible'),
+    formJoke: document.querySelector('#formJoke'),
     jokesList: document.querySelector('#jokesList'),
     getJoke: document.querySelector('#getJoke'),
-    formJoke: document.querySelector('#formJoke'),
-    cards: document.querySelector('.cards'),
 };
 
 const unsetActiveItem = (item) => {
@@ -15,27 +16,10 @@ const setActiveItem = (item) => {
     item.classList.add('active');
 };
 
-const fetchData = file => fetch(file)
+const fetchData = url => fetch(url)
     .then(data => {
         return data.ok ? data.json() : Promise.reject(data.statusText)
     });
-
-// collapse
-
-refs.formJoke.addEventListener('click', (e) => {
-    if(e.target.tagName === 'INPUT') {
-        const parentElement = e.target.parentElement.parentElement;
-
-        const currentActiveItem = e.currentTarget.parentElement.parentElement.querySelector('.active');
-        if(currentActiveItem) {
-            unsetActiveItem(currentActiveItem);
-            currentActiveItem.nextElementSibling.style.display = 'none';
-        }
-
-        setActiveItem(parentElement);
-        parentElement.nextElementSibling.style.display = 'block';
-    }
-});
 
 // renders
 
@@ -77,17 +61,32 @@ const renderCard = (joke) => {
 
 // get data
 
-fetchData('https://api.chucknorris.io/jokes/categories')
+fetchData(`${refs.apiUrl}jokes/categories`)
     .then(categories => {
         refs.jokesList.innerHTML = categories.map(category => `<li class="category-label">${category}</li>`).join('')
     })
     .catch(err => console.log(err));
 
-const getJokes = (category) => fetchData(`https://api.chucknorris.io/jokes/random?category=${category}`)
+const getJokes = (category) => fetchData(`${refs.apiUrl}jokes/random?category=${category}`)
     .then(joke => renderCard(joke))
     .catch(err => console.log(err));
 
 // handlers
+
+const handlerClickCollapse = (e) => {
+    if(e.target.tagName === 'INPUT') {
+        const activeItem = e.target.parentElement.parentElement;
+
+        const currentActiveItem = e.currentTarget.parentElement.parentElement.querySelector('.active');
+        if(currentActiveItem) {
+            unsetActiveItem(currentActiveItem);
+            currentActiveItem.nextElementSibling.style.display = 'none';
+        }
+
+        setActiveItem(activeItem);
+        activeItem.nextElementSibling.style.display = 'block';
+    }
+};
 
 const handleClickCategory = (e) => {
     e.preventDefault();
@@ -97,40 +96,37 @@ const handleClickCategory = (e) => {
         currentActiveItem && unsetActiveItem(currentActiveItem);
         setActiveItem(e.target);
 
-        getJokes(e.target.textContent);
+        refs.selectedCategory = e.target.textContent;
     }
 };
 
-refs.getJoke.addEventListener('click', handleClickCategory);
+const handleClickBtn = (e) => {
+    e.preventDefault();
 
+    const selectedRadio = document.querySelector('input[name="joke"]:checked');
 
-// const handleClickBtn = (e) => {
-//     e.preventDefault();
-//
-//     const radio = document.getElementsByName('joke');
-//
-//     for (let i = 0; i < radio.length; i++) {
-//         if(radio[i].checked) {
-//             switch (radio[i].value) {
-//                 case 'random':
-//                     console.log('random');
-//                     break;
-//                 case 'categories':
-//                     console.log('categories');
-//                     break;
-//                 case 'search':
-//                     console.log('search');
-//                     break;
-//             }
-//
-//             return;
-//         }
-//     }
-//
-//     console.log('Ви повинні вибрати категорію!');
-// };
+    if (selectedRadio) {
+        const value = selectedRadio.value;
 
-// refs.getJoke.addEventListener('click', handleClickBtn);
+        switch (value) {
+            case 'random':
+                console.log('random');
+                break;
+            case 'categories':
+                getJokes(refs.selectedCategory);
+                break;
+            case 'search':
+                console.log('search');
+                break;
+        }
+    } else {
+        alert('Ви повинні вибрати категорію!');
+    }
+};
+
+refs.formJoke.addEventListener('click', handlerClickCollapse);
+refs.jokesList.addEventListener('click', handleClickCategory);
+refs.getJoke.addEventListener('click', handleClickBtn);
 
 
 
