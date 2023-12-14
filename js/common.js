@@ -1,5 +1,5 @@
 const refs = {
-    apiUrl: 'https://api.chucknorris.io/',
+    apiUrl: 'https://api.chucknorris.io/jokes/',
     selectedCategory: '',
     cards: document.querySelector('.cards'),
     collapsibles: document.querySelectorAll('.collapsible'),
@@ -61,13 +61,13 @@ const renderCard = (joke) => {
 
 // get data
 
-fetchData(`${refs.apiUrl}jokes/categories`)
+fetchData(`${refs.apiUrl}categories`)
     .then(categories => {
         refs.jokesList.innerHTML = categories.map(category => `<li class="category-label">${category}</li>`).join('')
     })
     .catch(err => console.log(err));
 
-const getJokes = (category) => fetchData(`${refs.apiUrl}jokes/random?category=${category}`)
+const getJokes = (params) => fetchData(`${refs.apiUrl}${params}`)
     .then(joke => renderCard(joke))
     .catch(err => console.log(err));
 
@@ -110,10 +110,10 @@ const handleClickBtn = (e) => {
 
         switch (value) {
             case 'random':
-                console.log('random');
+                getJokes('random');
                 break;
             case 'categories':
-                getJokes(refs.selectedCategory);
+                getJokes(`random?category=${refs.selectedCategory}`);
                 break;
             case 'search':
                 console.log('search');
