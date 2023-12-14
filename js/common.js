@@ -1,10 +1,12 @@
 const refs = {
     apiUrl: 'https://api.chucknorris.io/jokes/',
     selectedCategory: '',
+    searchQuery: 'cat',
     cards: document.querySelector('.cards'),
     collapsibles: document.querySelectorAll('.collapsible'),
     formJoke: document.querySelector('#formJoke'),
     jokesList: document.querySelector('#jokesList'),
+    inputSearch: document.querySelector('#inputSearch'),
     getJoke: document.querySelector('#getJoke'),
 };
 
@@ -65,16 +67,16 @@ fetchData(`${refs.apiUrl}categories`)
     .then(categories => {
         refs.jokesList.innerHTML = categories.map(category => `<li class="category-label">${category}</li>`).join('')
     })
-    .catch(err => console.log(err));
+    .catch(err => console.error(err));
 
 const getJokes = (params) => fetchData(`${refs.apiUrl}${params}`)
     .then(joke => renderCard(joke))
-    .catch(err => console.log(err));
+    .catch(err => console.error(err));
 
 // handlers
 
 const handlerClickCollapse = (e) => {
-    if(e.target.tagName === 'INPUT') {
+    if(e.target.type === 'radio') {
         const activeItem = e.target.parentElement.parentElement;
 
         const currentActiveItem = e.currentTarget.parentElement.parentElement.querySelector('.active');
@@ -100,6 +102,12 @@ const handleClickCategory = (e) => {
     }
 };
 
+const handleInputSearch = (e) => {
+    e.preventDefault();
+
+    refs.searchQuery = refs.inputSearch.value;
+};
+
 const handleClickBtn = (e) => {
     e.preventDefault();
 
@@ -116,16 +124,19 @@ const handleClickBtn = (e) => {
                 getJokes(`random?category=${refs.selectedCategory}`);
                 break;
             case 'search':
-                console.log('search');
+                getJokes(`random?search?query=${refs.searchQuery}`);
                 break;
         }
     } else {
         alert('Ви повинні вибрати категорію!');
     }
+
+    // refs.formJoke.reset();
 };
 
 refs.formJoke.addEventListener('click', handlerClickCollapse);
 refs.jokesList.addEventListener('click', handleClickCategory);
+refs.inputSearch.addEventListener('blur', handleInputSearch);
 refs.getJoke.addEventListener('click', handleClickBtn);
 
 
