@@ -254,6 +254,9 @@ body {
     color: var(--darkGray);
     background-color: var(--lightGray);
 }
+input[name="jokeCategory"] {
+    display: none;
+}
 
 .search-input {
     border: 2px solid var(--darkGray);

@@ -24,26 +24,26 @@
                     Let’s try to find a joke for you:
                 </h2>
 
-                <form id="formJoke" class="form">
+                <form id="jokeForm" class="form">
                     <div class="collapsible">
                         <label>
-                            <input type="radio" name="joke" value="random" checked> Random Value
+                            <input type="radio" name="jokeType" value="random" checked> Random Value
                         </label>
                     </div>
                     <div></div>
 
                     <div class="collapsible">
                         <label>
-                            <input type="radio" name="joke" value="categories"> Categories
+                            <input type="radio" name="jokeType" value="categories"> Categories
                         </label>
                     </div>
                     <div class="content">
-                        <ul id="jokesList" class="category-labels"></ul>
+                        <ul id="jokeFormCategories" class="category-labels"></ul>
                     </div>
 
                     <div class="collapsible">
                         <label>
-                            <input id="inputSearch" type="radio" name="joke" value="search"> Search
+                            <input id="jokeSearch" type="radio" name="jokeType" value="search"> Search
                         </label>
                     </div>
                     <div class="content">
@@ -53,7 +53,7 @@
                     <button type="submit" id="getJoke" class="btn btn-submit">Get a joke</button>
                 </form>
 
-                <div class="cards"></div>
+                <div id="cardsJoke" class="cards"></div>
 
             </div>
         </div>
@@ -93,7 +93,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
