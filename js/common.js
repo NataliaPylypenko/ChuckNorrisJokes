@@ -50,12 +50,20 @@ const renderCard = (joke, cardSize) => {
 
     favoriteBtn.addEventListener('click', (e) => {
         let storageJokes = getLocalStorage('favoriteJokes');
-        // let storageJokeIndex = storageJokes.findIndex(item => item.id === joke.id);
-        joke.favorite = true;
-        storageJokes.push(joke);
-        localStorage.setItem('favoriteJokes', JSON.stringify(storageJokes));
+        let storageJokeIndex = storageJokes.findIndex(item => item.id === joke.id);
 
-        renderCard(joke, 'card-sm');
+        if (storageJokeIndex === -1) {
+            joke.favorite = true;
+            storageJokes.push(joke);
+            refs.cardsJoke.querySelector(`.card[data-id="${joke.id}"] .favorite-btn`).classList.add('isFavorite');
+            renderCard(joke, 'card-sm');
+        } else {
+            storageJokes.splice(storageJokeIndex, 1);
+            refs.favoriteCardsJoke.querySelector(`.card[data-id="${joke.id}"]`).remove();
+            refs.cardsJoke.querySelector(`.card[data-id="${joke.id}"] .favorite-btn`).classList.remove('isFavorite');
+        }
+
+        localStorage.setItem('favoriteJokes', JSON.stringify(storageJokes));
     });
 
     const jokeId = document.createElement('div');
@@ -89,6 +97,7 @@ const renderCard = (joke, cardSize) => {
     cardBody.appendChild(jokeRow);
 
     const cardJoke = document.createElement('div');
+    cardJoke.dataset.id = joke.id;
     cardJoke.className = `card ${cardSize}`;
     cardJoke.appendChild(cardIcon);
     cardJoke.appendChild(cardBody);
