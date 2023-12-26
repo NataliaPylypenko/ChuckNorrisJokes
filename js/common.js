@@ -2,11 +2,11 @@ const refs = {
     apiUrl: 'https://api.chucknorris.io/jokes',
     cardsJoke: document.querySelector('#cardsJoke'),
     favoriteCardsJoke: document.querySelector('#favoriteCardsJoke'),
-    // collapsibles: document.querySelectorAll('.collapsible'),
     jokeForm: document.querySelector('#jokeForm'),
-    jokeFormCategories: document.querySelector('#jokeFormCategories'), // jokeFormCats
+    jokeCategories: document.querySelector('#jokeCategories'),
     jokeSearch: document.querySelector('#jokeSearch'),
-    // getJoke: document.querySelector('#getJoke'),
+    currentActiveJokeCategory: null,
+    currentActiveJokeType: null,
 };
 
 const unsetActiveItem = (item) => {
@@ -17,19 +17,37 @@ const setActiveItem = (item) => {
     item.classList.add('active');
 };
 
+// function to fetch data from the API
 const fetchData = url => fetch(url)
-    .then(data => data.ok ? data.json() : Promise.reject(data.statusText))
+    .then(response => response.ok ? response.json() : Promise.reject(response.statusText))
     .catch(err => console.error(err));
 
-const getLocalStorage = (key, defaultValue = []) => {
-    let storage = localStorage.getItem(key);
-    storage = storage ? JSON.parse(storage) : defaultValue;
 
-    return storage;
+// function to handle favorite button clicks
+const handleFavoriteButtonClick = (e, joke) => {
+    e.preventDefault();
+
+    let storageJokes = getLocalStorage('favoriteJokes');
+    const storageJokeIndex = storageJokes.findIndex(item => item.id === joke.id);
+
+    if (storageJokeIndex === -1) {
+        joke.favorite = true;
+        storageJokes.push(joke);
+        refs.cardsJoke.querySelector(`.card[data-id="${joke.id}"] .favorite-btn`).classList.add('isFavorite');
+
+        renderJokeCard(joke, 'card-sm');
+    } else {
+        storageJokes.splice(storageJokeIndex, 1);
+        refs.favoriteCardsJoke.querySelector(`.card[data-id="${joke.id}"]`).remove();
+        refs.cardsJoke.querySelector(`.card[data-id="${joke.id}"] .favorite-btn`).classList.remove('isFavorite');
+    }
+
+    localStorage.setItem('favoriteJokes', JSON.stringify(storageJokes));
 };
 
-// renders
-const renderCard = (joke, cardSize) => {
+
+// function to render a joke card
+const renderJokeCard = (joke, cardSize) => {
     const cardIcon = document.createElement('div');
     cardIcon.className = 'card__icon';
     cardIcon.innerHTML = `
@@ -49,21 +67,7 @@ const renderCard = (joke, cardSize) => {
         </svg>`;
 
     favoriteBtn.addEventListener('click', (e) => {
-        let storageJokes = getLocalStorage('favoriteJokes');
-        let storageJokeIndex = storageJokes.findIndex(item => item.id === joke.id);
-
-        if (storageJokeIndex === -1) {
-            joke.favorite = true;
-            storageJokes.push(joke);
-            refs.cardsJoke.querySelector(`.card[data-id="${joke.id}"] .favorite-btn`).classList.add('isFavorite');
-            renderCard(joke, 'card-sm');
-        } else {
-            storageJokes.splice(storageJokeIndex, 1);
-            refs.favoriteCardsJoke.querySelector(`.card[data-id="${joke.id}"]`).remove();
-            refs.cardsJoke.querySelector(`.card[data-id="${joke.id}"] .favorite-btn`).classList.remove('isFavorite');
-        }
-
-        localStorage.setItem('favoriteJokes', JSON.stringify(storageJokes));
+       handleFavoriteButtonClick(e, joke);
     });
 
     const jokeId = document.createElement('div');
@@ -107,71 +111,41 @@ const renderCard = (joke, cardSize) => {
         : refs.cardsJoke.appendChild(cardJoke);
 };
 
-const renderFavoriteCards = () => getLocalStorage('favoriteJokes').forEach(joke => renderCard(joke, 'card-sm'));
-renderFavoriteCards();
 
-// get data
+// function to get data from local storage with a default value
+const getLocalStorage = (key, defaultValue = []) => {
+    let storage = localStorage.getItem(key);
+    return storage ? JSON.parse(storage) : defaultValue;
+};
 
-const getCategories = () => fetchData(`${refs.apiUrl}/categories`)
-    .then(categories => {
-        refs.jokeFormCategories.innerHTML = categories.map((category, index) => {
-            return `<li class="category-label">
-                <label>
-                    <input type="radio" name="jokeCategory" value="${category}" ${!index && 'checked'}>
-                    ${category}
-                </label>
-            </li>`
-            }).join('')
-        })
-    .catch(err => console.error(err));
+const renderFavoriteCardsFromStorage = () => getLocalStorage('favoriteJokes').forEach(joke => renderJokeCard(joke, 'card-sm'));
+renderFavoriteCardsFromStorage();
 
-const getJokes = (params) => fetchData(`${refs.apiUrl}${params}`)
+
+/* fetch jokes from the API */
+const fetchJokes = (params) => fetchData(`${refs.apiUrl}${params}`)
     .then(data => {
         data.result
-            ? data.result.forEach(joke => renderCard(joke, 'card-lg'))
-            : renderCard(data, 'card-lg')
+            ? data.result.forEach(joke => renderJokeCard(joke, 'card-lg'))
+            : renderJokeCard(data, 'card-lg')
     })
     .catch(err => console.error(err));
 
-// handlers
 
-// const handlerClickCollapse = (e) => {
-//     if(e.target.type === 'radio') {
-//         const activeItem = e.target.parentElement.parentElement;
-//
-//         const currentActiveItem = e.currentTarget.parentElement.parentElement.querySelector('.active');
-//         if(currentActiveItem) {
-//             unsetActiveItem(currentActiveItem);
-//             currentActiveItem.nextElementSibling.style.display = 'none';
-//         }
-//
-//         setActiveItem(activeItem);
-//         activeItem.nextElementSibling.style.display = 'block';
-//     }
-// };
-
-// const handleClickCategory = (e) => {
-//     e.preventDefault();
-//
-//     if(e.target.tagName === 'LI') {
-//         const currentActiveItem = e.currentTarget.querySelector('.active');
-//         currentActiveItem && unsetActiveItem(currentActiveItem);
-//         setActiveItem(e.target);
-//     }
-// };
-
-const handleClickBtn = (e) => {
+/* Form Submission */
+const handleFormSubmission = (e) => {
     e.preventDefault();
 
     const jokeType = refs.jokeForm.querySelector('input[name="jokeType"]:checked').value;
 
     switch (jokeType) {
         case 'random':
-            getJokes('/random');
+            fetchJokes('/random');
             break;
         case 'categories':
-            let checkedCategory = refs.jokeFormCategories.querySelector(`input[name="jokeCategory"]:checked`).value;
-            getJokes(`/random?category=${checkedCategory}`);
+            let checkedInput = refs.jokeCategories.querySelector(`input[name="jokeCategory"]:checked`);
+            let checkedCategory = checkedInput.value;
+            fetchJokes(`/random?category=${checkedCategory}`);
             break;
         case 'search':
             let queryValue = encodeURIComponent(refs.jokeSearch.value);
@@ -179,17 +153,78 @@ const handleClickBtn = (e) => {
                 console.log('size must be between 3 and 120');
                 return;
             }
-            getJokes(`/search?query=${queryValue}`);
+            fetchJokes(`/search?query=${queryValue}`);
             break;
     }
 
-    // refs.formJoke.reset();
+    if(refs.currentActiveJokeType) {
+        unsetActiveItem(refs.currentActiveJokeType);
+        refs.currentActiveJokeType.nextElementSibling.style.display = 'none';
+    }
+
+    if(refs.currentActiveJokeCategory) {
+        unsetActiveItem(refs.currentActiveJokeCategory);
+    }
+
+    refs.jokeForm.reset();
 };
 
-refs.jokeForm.addEventListener('submit', handleClickBtn);
-// refs.jokeForm.addEventListener('click', handlerClickCollapse);
-// refs.jokeFormCategories.addEventListener('click', handleClickCategory);
-getCategories();
+refs.jokeForm.addEventListener('submit', handleFormSubmission);
 
 
+/* Choose Joke Category */
+const handleChooseJokeCategory = (e) => {
+    if(e.target.name === 'jokeCategory') {
+        const activeJokeCategory = e.target.parentElement.parentElement;
+        const previousActiveJokeCategory = refs.currentActiveJokeCategory;
 
+        if (previousActiveJokeCategory) {
+            unsetActiveItem(previousActiveJokeCategory);
+        }
+
+        refs.currentActiveJokeCategory = activeJokeCategory;
+        setActiveItem(activeJokeCategory);
+    }
+};
+
+refs.jokeCategories.addEventListener('click', handleChooseJokeCategory);
+
+
+/* Choose Filter Type */
+const handleChooseFilterType = (e) => {
+    if(e.target.name === 'jokeType') {
+        const activeJokeType = e.target.parentElement.parentElement;
+        const previousActiveJokeType = refs.currentActiveJokeType;
+
+        if(previousActiveJokeType) {
+            unsetActiveItem(previousActiveJokeType);
+            previousActiveJokeType.nextElementSibling.style.display = 'none';
+        }
+
+        if(refs.currentActiveJokeCategory) {
+            unsetActiveItem(refs.currentActiveJokeCategory);
+        }
+
+        refs.currentActiveJokeType = activeJokeType;
+
+        setActiveItem(activeJokeType);
+        activeJokeType.nextElementSibling.style.display = 'block';
+    }
+};
+
+refs.jokeForm.addEventListener('click', handleChooseFilterType);
+
+
+/* fetch categories from the API*/
+fetchData(`${refs.apiUrl}/categories`)
+    .then(categories => {
+        refs.jokeCategories.innerHTML = categories.map((category, index) => {
+            return `<li class="category-label">
+                <label>
+                    <input type="radio" name="jokeCategory" value="${category}" ${!index && 'checked'}>
+                    ${category}
+                </label>
+            </li>`
+        }).join('')
+    })
+    .catch(err => console.error(err));
