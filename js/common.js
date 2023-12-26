@@ -33,13 +33,17 @@ const handleFavoriteButtonClick = (e, joke) => {
     if (storageJokeIndex === -1) {
         joke.favorite = true;
         storageJokes.push(joke);
-        refs.cardsJoke.querySelector(`.card[data-id="${joke.id}"] .favorite-btn`).classList.add('isFavorite');
 
+        refs.cardsJoke.querySelector(`.card[data-id="${joke.id}"] .favorite-btn`).classList.add('isFavorite');
         renderJokeCard(joke, 'card-sm');
     } else {
         storageJokes.splice(storageJokeIndex, 1);
-        refs.favoriteCardsJoke.querySelector(`.card[data-id="${joke.id}"]`).remove();
-        refs.cardsJoke.querySelector(`.card[data-id="${joke.id}"] .favorite-btn`).classList.remove('isFavorite');
+
+        const cardElement = refs.cardsJoke.querySelector(`.card[data-id="${joke.id}"]`);
+        cardElement && cardElement.querySelector('.favorite-btn').classList.remove('isFavorite');
+
+        const favoriteCardElement = refs.favoriteCardsJoke.querySelector(`.card[data-id="${joke.id}"]`);
+        favoriteCardElement && favoriteCardElement.remove();
     }
 
     localStorage.setItem('favoriteJokes', JSON.stringify(storageJokes));
@@ -118,8 +122,7 @@ const getLocalStorage = (key, defaultValue = []) => {
     return storage ? JSON.parse(storage) : defaultValue;
 };
 
-const renderFavoriteCardsFromStorage = () => getLocalStorage('favoriteJokes').forEach(joke => renderJokeCard(joke, 'card-sm'));
-renderFavoriteCardsFromStorage();
+getLocalStorage('favoriteJokes').forEach(joke => renderJokeCard(joke, 'card-sm'));
 
 
 /* fetch jokes from the API */
